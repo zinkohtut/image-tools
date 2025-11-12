@@ -2,6 +2,14 @@
   width: 100%;
 }
 
+.crop-tool .preview-placeholder {
+  min-height: 600px;
+}
+
+.crop-tool .preview-section {
+  min-height: 600px;
+}
+
 .dimensions-info {
   background: #e3f2fd;
   padding: 1rem;

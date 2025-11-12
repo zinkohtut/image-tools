@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import JSZip from 'jszip'
 import './CropTool.css'
 
-function CropTool() {
+function CropTool({ onProcessComplete, incomingImages = [] }) {
   const [selectedImages, setSelectedImages] = useState([])
   const [cropTop, setCropTop] = useState(0)
   const [cropBottom, setCropBottom] = useState(0)
@@ -16,6 +16,30 @@ function CropTool() {
   
   const canvasRef = useRef(null)
 
+  // Load incoming images from previous tool
+  useEffect(() => {
+    if (incomingImages.length > 0 && selectedImages.length === 0) {
+      const files = incomingImages.map((item) => {
+        return new File([item.blob], item.name, { type: 'image/png' })
+      })
+      setSelectedImages(files)
+      setStatusMessage(`${files.length} image(s) loaded from previous step`)
+      
+      // Load first image for preview
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const img = new Image()
+        img.onload = () => {
+          setOriginalDimensions({ width: img.width, height: img.height })
+          generatePreview(img)
+        }
+        img.src = event.target.result
+      }
+      reader.readAsDataURL(files[0])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incomingImages])
+
   const handleImageSelection = (e) => {
     const files = Array.from(e.target.files)
     if (files.length > 0) {
@@ -24,6 +48,35 @@ function CropTool() {
       setProcessedImages([])
       
       // Load first image for preview
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const img = new Image()
+        img.onload = () => {
+          setOriginalDimensions({ width: img.width, height: img.height })
+          generatePreview(img)
+        }
+        img.src = event.target.result
+      }
+      reader.readAsDataURL(files[0])
+    }
+  }
+
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'))
+    
+    if (files.length > 0) {
+      setSelectedImages(files)
+      setStatusMessage(`${files.length} image(s) selected`)
+      setProcessedImages([])
+      
       const reader = new FileReader()
       reader.onload = (event) => {
         const img = new Image()
@@ -145,6 +198,11 @@ function CropTool() {
     setProcessedImages(processed)
     setStatusMessage(`Successfully processed ${processed.length} images!`)
     setIsProcessing(false)
+    
+    // Trigger workflow modal if callback provided
+    if (onProcessComplete && processed.length > 0) {
+      onProcessComplete('crop', processed)
+    }
   }
 
   const downloadAsZip = async () => {
@@ -188,7 +246,11 @@ function CropTool() {
         <div className="tool-layout">
           <div className="left-panel">
             <div className="upload-section">
-              <div className="upload-box">
+              <div 
+                className="upload-box"
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
                 <label htmlFor="cropImageFiles" className="upload-label">
                   <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -197,7 +259,7 @@ function CropTool() {
                   </svg>
                   <div className="upload-text">
                     <strong>Select Images</strong>
-                    <span>Choose multiple images to crop</span>
+                    <span>Click or drag & drop</span>
                   </div>
                 </label>
                 <input 

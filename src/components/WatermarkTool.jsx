@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import JSZip from 'jszip'
 import './WatermarkTool.css'
 
-function WatermarkTool() {
+function WatermarkTool({ onProcessComplete, incomingImages = [] }) {
   const [selectedImages, setSelectedImages] = useState([])
   const [watermarkImage, setWatermarkImage] = useState(null)
   const [watermarkSize, setWatermarkSize] = useState(100)
@@ -16,6 +16,19 @@ function WatermarkTool() {
   const canvasRef = useRef(null)
   const watermarkImgRef = useRef(null)
 
+  // Load incoming images from previous tool
+  useEffect(() => {
+    if (incomingImages.length > 0 && selectedImages.length === 0) {
+      // Convert blobs back to files
+      const files = incomingImages.map((item) => {
+        return new File([item.blob], item.name, { type: 'image/png' })
+      })
+      setSelectedImages(files)
+      setStatusMessage(`${files.length} image(s) loaded from previous step`)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incomingImages])
+
   const handleImageSelection = (e) => {
     const files = Array.from(e.target.files)
     if (files.length > 0) {
@@ -23,6 +36,43 @@ function WatermarkTool() {
       setStatusMessage(`${files.length} image(s) selected`)
       setProcessedImages([])
       setPreviewUrl(null)
+    }
+  }
+
+  const handleDragOver = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e, type) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'))
+    
+    if (files.length > 0) {
+      if (type === 'images') {
+        setSelectedImages(files)
+        setStatusMessage(`${files.length} image(s) selected`)
+        setProcessedImages([])
+        setPreviewUrl(null)
+      } else if (type === 'watermark') {
+        const file = files[0]
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          const img = new Image()
+          img.onload = () => {
+            watermarkImgRef.current = img
+            setWatermarkImage(img)
+            setStatusMessage('Watermark loaded successfully')
+            if (selectedImages.length > 0) {
+              generatePreviewWithWatermark(img)
+            }
+          }
+          img.src = event.target.result
+        }
+        reader.readAsDataURL(file)
+      }
     }
   }
 
@@ -181,6 +231,11 @@ function WatermarkTool() {
     setProcessedImages(processed)
     setStatusMessage(`Successfully processed ${processed.length} images!`)
     setIsProcessing(false)
+    
+    // Trigger workflow modal if callback provided
+    if (onProcessComplete && processed.length > 0) {
+      onProcessComplete('watermark', processed)
+    }
   }
 
   const downloadAsZip = async () => {
@@ -221,7 +276,11 @@ function WatermarkTool() {
         <div className="tool-layout">
           <div className="left-panel">
             <div className="upload-grid">
-              <div className="upload-box">
+              <div 
+                className="upload-box"
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, 'images')}
+              >
                 <label htmlFor="imageFiles" className="upload-label">
                   <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -230,7 +289,7 @@ function WatermarkTool() {
                   </svg>
                   <div className="upload-text">
                     <strong>Select Images</strong>
-                    <span>Choose multiple images</span>
+                    <span>Click or drag & drop</span>
                   </div>
                 </label>
                 <input 
@@ -247,7 +306,11 @@ function WatermarkTool() {
                 )}
               </div>
 
-              <div className="upload-box">
+              <div 
+                className="upload-box"
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, 'watermark')}
+              >
                 <label htmlFor="watermarkFile" className="upload-label">
                   <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -257,7 +320,7 @@ function WatermarkTool() {
                   </svg>
                   <div className="upload-text">
                     <strong>Select Watermark</strong>
-                    <span>PNG with transparency recommended</span>
+                    <span>Click or drag & drop</span>
                   </div>
                 </label>
                 <input 
