@@ -218,144 +218,159 @@ function WatermarkTool() {
         <h2>💧 Batch Watermark Tool</h2>
         <p className="tool-description">Add watermarks to multiple images at once</p>
 
-        <div className="upload-grid">
-          <div className="upload-box">
-            <label htmlFor="imageFiles" className="upload-label">
-              <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                <polyline points="21 15 16 10 5 21"></polyline>
-              </svg>
-              <div className="upload-text">
-                <strong>Select Images</strong>
-                <span>Choose multiple images</span>
+        <div className="tool-layout">
+          <div className="left-panel">
+            <div className="upload-grid">
+              <div className="upload-box">
+                <label htmlFor="imageFiles" className="upload-label">
+                  <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                  </svg>
+                  <div className="upload-text">
+                    <strong>Select Images</strong>
+                    <span>Choose multiple images</span>
+                  </div>
+                </label>
+                <input 
+                  type="file" 
+                  id="imageFiles" 
+                  accept="image/*" 
+                  multiple 
+                  onChange={handleImageSelection}
+                />
+                {selectedImages.length > 0 && (
+                  <div className="file-count">
+                    ✓ {selectedImages.length} image{selectedImages.length > 1 ? 's' : ''} selected
+                  </div>
+                )}
               </div>
-            </label>
-            <input 
-              type="file" 
-              id="imageFiles" 
-              accept="image/*" 
-              multiple 
-              onChange={handleImageSelection}
-            />
-            {selectedImages.length > 0 && (
-              <div className="file-count">
-                ✓ {selectedImages.length} image{selectedImages.length > 1 ? 's' : ''} selected
-              </div>
-            )}
-          </div>
 
-          <div className="upload-box">
-            <label htmlFor="watermarkFile" className="upload-label">
-              <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="12" y1="18" x2="12" y2="12"></line>
-                <line x1="9" y1="15" x2="15" y2="15"></line>
-              </svg>
-              <div className="upload-text">
-                <strong>Select Watermark</strong>
-                <span>PNG with transparency recommended</span>
+              <div className="upload-box">
+                <label htmlFor="watermarkFile" className="upload-label">
+                  <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                  </svg>
+                  <div className="upload-text">
+                    <strong>Select Watermark</strong>
+                    <span>PNG with transparency recommended</span>
+                  </div>
+                </label>
+                <input 
+                  type="file" 
+                  id="watermarkFile" 
+                  accept="image/*" 
+                  onChange={handleWatermarkSelection}
+                />
+                {watermarkImage && (
+                  <div className="file-count">
+                    ✓ Watermark loaded
+                  </div>
+                )}
               </div>
-            </label>
-            <input 
-              type="file" 
-              id="watermarkFile" 
-              accept="image/*" 
-              onChange={handleWatermarkSelection}
-            />
-            {watermarkImage && (
-              <div className="file-count">
-                ✓ Watermark loaded
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="settings-section">
-          <h3>⚙️ Watermark Settings</h3>
-          <div className="settings-grid">
-            <div className="setting-item">
-              <label>
-                Size: <strong>{watermarkSize}%</strong>
-              </label>
-              <input 
-                type="range" 
-                min="10" 
-                max="100" 
-                value={watermarkSize}
-                onChange={(e) => {
-                  setWatermarkSize(Number(e.target.value))
-                  if (watermarkImage) generatePreviewWithWatermark(watermarkImage)
-                }}
-              />
             </div>
 
-            <div className="setting-item">
-              <label>
-                Opacity: <strong>{watermarkOpacity}%</strong>
-              </label>
-              <input 
-                type="range" 
-                min="10" 
-                max="100" 
-                value={watermarkOpacity}
-                onChange={(e) => {
-                  setWatermarkOpacity(Number(e.target.value))
-                  if (watermarkImage) generatePreviewWithWatermark(watermarkImage)
-                }}
-              />
+            <div className="settings-section">
+              <h3>⚙️ Watermark Settings</h3>
+              <div className="settings-grid">
+                <div className="setting-item">
+                  <label>
+                    Size: <strong>{watermarkSize}%</strong>
+                  </label>
+                  <input 
+                    type="range" 
+                    min="10" 
+                    max="100" 
+                    value={watermarkSize}
+                    onChange={(e) => {
+                      setWatermarkSize(Number(e.target.value))
+                      if (watermarkImage) generatePreviewWithWatermark(watermarkImage)
+                    }}
+                  />
+                </div>
+
+                <div className="setting-item">
+                  <label>
+                    Opacity: <strong>{watermarkOpacity}%</strong>
+                  </label>
+                  <input 
+                    type="range" 
+                    min="10" 
+                    max="100" 
+                    value={watermarkOpacity}
+                    onChange={(e) => {
+                      setWatermarkOpacity(Number(e.target.value))
+                      if (watermarkImage) generatePreviewWithWatermark(watermarkImage)
+                    }}
+                  />
+                </div>
+
+                <div className="setting-item">
+                  <label>
+                    Position: <strong>{watermarkPosition.replace('-', ' ')}</strong>
+                  </label>
+                  <select 
+                    value={watermarkPosition}
+                    onChange={(e) => {
+                      setWatermarkPosition(e.target.value)
+                      if (watermarkImage) generatePreviewWithWatermark(watermarkImage)
+                    }}
+                  >
+                    <option value="center">Center</option>
+                    <option value="top-left">Top Left</option>
+                    <option value="top-right">Top Right</option>
+                    <option value="bottom-left">Bottom Left</option>
+                    <option value="bottom-right">Bottom Right</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
-            <div className="setting-item">
-              <label>
-                Position: <strong>{watermarkPosition.replace('-', ' ')}</strong>
-              </label>
-              <select 
-                value={watermarkPosition}
-                onChange={(e) => {
-                  setWatermarkPosition(e.target.value)
-                  if (watermarkImage) generatePreviewWithWatermark(watermarkImage)
-                }}
+            <div className="action-section">
+              <button 
+                className="btn-primary"
+                onClick={processAllImages}
+                disabled={!watermarkImage || selectedImages.length === 0 || isProcessing}
               >
-                <option value="center">Center</option>
-                <option value="top-left">Top Left</option>
-                <option value="top-right">Top Right</option>
-                <option value="bottom-left">Bottom Left</option>
-                <option value="bottom-right">Bottom Right</option>
-              </select>
+                {isProcessing ? 'Processing...' : '🎨 Apply Watermark'}
+              </button>
+
+              {processedImages.length > 0 && (
+                <button 
+                  className="btn-success"
+                  onClick={downloadAsZip}
+                >
+                  📦 Download ZIP
+                </button>
+              )}
+
+              {statusMessage && (
+                <p className="status-message">{statusMessage}</p>
+              )}
             </div>
           </div>
-        </div>
 
-        {previewUrl && (
-          <div className="preview-section">
-            <h3>👁️ Preview (First Image)</h3>
-            <img src={previewUrl} alt="Preview" className="preview-image" />
+          <div className="right-panel">
+            {previewUrl ? (
+              <div className="preview-section">
+                <h3>👁️ Preview</h3>
+                <img src={previewUrl} alt="Preview" className="preview-image" />
+              </div>
+            ) : (
+              <div className="preview-placeholder">
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <p>Preview will appear here</p>
+              </div>
+            )}
           </div>
-        )}
-
-        <div className="action-section">
-          <button 
-            className="btn-primary"
-            onClick={processAllImages}
-            disabled={!watermarkImage || selectedImages.length === 0 || isProcessing}
-          >
-            {isProcessing ? 'Processing...' : '🎨 Apply Watermark to All Images'}
-          </button>
-
-          {processedImages.length > 0 && (
-            <button 
-              className="btn-success"
-              onClick={downloadAsZip}
-            >
-              📦 Download All as ZIP
-            </button>
-          )}
-
-          {statusMessage && (
-            <p className="status-message">{statusMessage}</p>
-          )}
         </div>
 
         <canvas ref={canvasRef} style={{ display: 'none' }} />

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import WatermarkTool from './components/WatermarkTool'
+import CropTool from './components/CropTool'
 import './App.css'
 
 function App() {
@@ -19,11 +20,14 @@ function App() {
         >
           💧 Watermark
         </button>
-        <button className="disabled" disabled>
-          🔄 Resize (Coming Soon)
+        <button 
+          className={activeTab === 'crop' ? 'active' : ''}
+          onClick={() => setActiveTab('crop')}
+        >
+          ✂️ Crop
         </button>
         <button className="disabled" disabled>
-          ✂️ Crop (Coming Soon)
+          🔄 Resize (Coming Soon)
         </button>
         <button className="disabled" disabled>
           🎨 Filters (Coming Soon)
@@ -32,6 +36,7 @@ function App() {
 
       <main className="tool-container">
         {activeTab === 'watermark' && <WatermarkTool />}
+        {activeTab === 'crop' && <CropTool />}
       </main>
 
       <footer className="app-footer">

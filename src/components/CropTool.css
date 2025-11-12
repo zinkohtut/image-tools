@@ -1,0 +1,48 @@
+.crop-tool {
+  width: 100%;
+}
+
+.dimensions-info {
+  background: #e3f2fd;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 2px solid #2196f3;
+}
+
+.dimensions-info p {
+  margin: 0.25rem 0;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+}
+
+.dimensions-info strong {
+  color: #1976d2;
+}
+
+.setting-item input[type="number"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.setting-item input[type="number"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.setting-item input[type="number"]::-webkit-inner-spin-button,
+.setting-item input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 40px;
+}
+
+@media (max-width: 1024px) {
+  .dimensions-info p {
+    font-size: 0.85rem;
+  }
+}
